@@ -2,14 +2,14 @@ package main
 
 import (
 	"code.google.com/p/goauth2/oauth"
-	"github.com/digitalocean/godo"
 	"encoding/json"
 	"fmt"
+	"github.com/digitalocean/godo"
 	"io/ioutil"
 )
 
 type Configuration struct {
-  Token   string `json:"token"`
+	Token string `json:"token"`
 }
 
 type domclient struct {
@@ -25,8 +25,8 @@ func SetupClient(filepath string) *domclient {
 	}
 	config := Configuration{}
 	err = json.Unmarshal(file, &config)
-	if err!= nil {
-		fmt.Printf("Error in config file, Please reconfigure dom: %v\n",err )
+	if err != nil {
+		fmt.Printf("Error in config file, Please reconfigure dom: %v\n", err)
 		return nil
 	}
 	d := &domclient{}
@@ -35,7 +35,7 @@ func SetupClient(filepath string) *domclient {
 	return d
 }
 
-func (d *domclient) DropletList() ([]godo.Droplet, error) {
+func (d *domclient) DropletList(filter string) ([]godo.Droplet, error) {
 	// create a list to hold our droplets
 	list := []godo.Droplet{}
 
@@ -67,4 +67,22 @@ func (d *domclient) DropletList() ([]godo.Droplet, error) {
 	}
 	fmt.Println(list)
 	return list, nil
+}
+
+func (d *domclient) ImageList(fliter string) ([]godo.Image, error) {
+	list := []godo.Image{}
+
+	images, _, err := d.client.Images.List(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, img := range images {
+		list = append(list, img)
+		fmt.Printf("Name:%s: %-20s , type : %s\n",img.Distribution, img.Name, img.Type)
+
+	}
+
+	return list, nil
+
 }
