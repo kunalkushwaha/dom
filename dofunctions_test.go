@@ -16,15 +16,27 @@ func TestDropletList(t *testing.T) {
 	}
 }
 
-func TestImageList(t *testing.T) {
+func TestImageUserList(t *testing.T) {
 	path, _ := homedir.Expand("~/.dom.json")
 	d := SetupClient(path)
 	if d == nil {
 		t.Errorf("Cannot setup the client")
 		return
 	}
-	_, err := d.ImageList(" ")
+	_, err := d.ImageList(" ", true)
 	if err != nil {
-		t.Errorf("Unable to fetch DropletList\n")
+		t.Errorf("Unable to fetch User ImageList\n")
+	}
+}
+func TestImageGlobalList(t *testing.T) {
+	path, _ := homedir.Expand("~/.dom.json")
+	d := SetupClient(path)
+	if d == nil {
+		t.Errorf("Cannot setup the client")
+		return
+	}
+	_, err := d.ImageList(" ", false)
+	if err != nil {
+		t.Errorf("Unable to fetch User ImageList\n")
 	}
 }

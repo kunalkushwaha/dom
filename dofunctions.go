@@ -69,10 +69,17 @@ func (d *domclient) DropletList(filter string) ([]godo.Droplet, error) {
 	return list, nil
 }
 
-func (d *domclient) ImageList(fliter string) ([]godo.Image, error) {
+func (d *domclient) ImageList(fliter string, user bool) ([]godo.Image, error) {
 	list := []godo.Image{}
-
-	images, _, err := d.client.Images.List(nil)
+	var images []godo.Image
+	var err error
+	if user == true {
+		fmt.Println("User ImageLists ")
+		images, _, err = d.client.Images.ListUser(nil)
+	} else {
+		fmt.Println("Global ImageLists ")
+		images, _, err = d.client.Images.List(nil)
+	}
 	if err != nil {
 		return nil, err
 	}
