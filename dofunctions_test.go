@@ -40,3 +40,18 @@ func TestImageGlobalList(t *testing.T) {
 		t.Errorf("Unable to fetch User ImageList\n")
 	}
 }
+
+
+func TestRestoreImage(t *testing.T) {
+	path, _ := homedir.Expand("~/.dom.json")
+	d := SetupClient(path)
+	if d == nil {
+		t.Errorf("Cannot setup the client")
+		return
+	}
+	err := d.CreateDropletFromImage(11876597)
+	if err != nil {
+		t.Errorf("Unable to create Droplet from Image\n")
+	}
+
+}

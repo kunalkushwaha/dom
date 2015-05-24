@@ -86,10 +86,42 @@ func (d *domclient) ImageList(fliter string, user bool) ([]godo.Image, error) {
 
 	for _, img := range images {
 		list = append(list, img)
-		fmt.Printf("Name:%s: %-20s , type : %s\n",img.Distribution, img.Name, img.Type)
+		fmt.Printf("ID : %6d, Name:%s: %-20s , type : %s\n", img.ID, img.Distribution, img.Name, img.Type)
 
 	}
 
 	return list, nil
 
+}
+
+func (d *domclient) RebuildByImageID(imageId int) error {
+
+	action, _, err := d.client.DropletActions.RebuildByImageID(imageId, imageId)
+	if err != nil {
+		fmt.Printf("DropletActions.Restore returned error: %v\n", err)
+		return err
+	}
+	fmt.Printf("DropletActions.Restore returned %+v \n", action)
+	return nil
+}
+
+func (d *domclient) CreateDropletFromImage(imageID int) error {
+	createRequest := &godo.DropletCreateRequest{
+		Name:   "testdr1",
+		Region: "nyc3",
+		Size:   "512MB",
+		Image: godo.DropletCreateImage{
+			ID: imageID,
+		},
+	}
+
+	root, _, err := d.client.Droplets.Create(createRequest)
+	if err != nil {
+		fmt.Printf("Droplets.Create returned error: %v", err)
+		return err
+	}
+	if id := root.Droplet.ID; id != imageID {
+		fmt.Printf("expected id '%d', received '%d'\n", imageID, id)
+	}
+	return nil
 }
