@@ -3,8 +3,9 @@ package main
 import (
 	"testing"
 	"time"
+
+	"github.com/mitchellh/go-homedir"
 )
-import "github.com/mitchellh/go-homedir"
 
 func TestDropletList(t *testing.T) {
 	path, _ := homedir.Expand("~/.dom.json")
