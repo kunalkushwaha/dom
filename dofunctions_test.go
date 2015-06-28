@@ -59,7 +59,7 @@ func TestRestoreImage(t *testing.T) {
 	}
 
 	//Time required for creation of droplet
-	time.Sleep(60 * time.Second)
+	time.Sleep(70 * time.Second)
 
 	err = d.DestroyDroplet(droplet.ID)
 	if err != nil {

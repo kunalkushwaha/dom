@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/codegangsta/cli"
+	"github.com/mitchellh/go-homedir"
 )
 
 /*
@@ -63,6 +64,8 @@ $ tugboat wait admin --state off
 
 
 */
+const domConfigPath string = "~/.dom.json"
+
 func main() {
 
 	dom := cli.NewApp()
@@ -70,10 +73,18 @@ func main() {
 	dom.Usage = "Cli based digital-ocean client"
 	dom.Commands = []cli.Command{
 		{
+			Name:  "authorize",
+			Usage: "Authorize and configure dom client",
+			Action: func(c *cli.Context) {
+				path, _ := homedir.Expand(domConfigPath)
+				ConfigureDOM(path)
+			},
+		},
+		{
 			Name:  "images",
 			Usage: "List images",
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				cli.BoolFlag{
 					Name:  "global",
 					Usage: "List global images from digital-ocean",
 				},
@@ -148,8 +159,26 @@ func main() {
 	dom.Run(os.Args)
 }
 
+func getDomClient() *domclient {
+
+	path, _ := homedir.Expand(domConfigPath)
+	d := SetupClient(path)
+	if d == nil {
+		return nil
+	}
+	return d
+
+}
+
 func listImages(c *cli.Context) {
-	fmt.Println("NOT IMPLEMENTED !")
+	global := c.Bool("global")
+
+	d := getDomClient()
+	_, err := d.ImageList(" ", global)
+	if err != nil {
+		fmt.Println("Unable to fetch User ImageList")
+	}
+
 }
 func createDroplet(c *cli.Context) {
 	fmt.Println("NOT IMPLEMENTED !")

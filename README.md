@@ -37,6 +37,7 @@ VERSION:
    0.0.0
 
 COMMANDS:
+   authorize	Authorize and configure dom client
    images	List images
    create	creates a droplet
    destory	destroy a droplet

@@ -19,11 +19,28 @@ type domclient struct {
 	client *godo.Client
 }
 
+// ConfigureDOM configures the client with token
+func ConfigureDOM(path string) {
+	var token string
+
+	fmt.Println("\nYou need to obtain Personal Access Token from DigitalOcean")
+	fmt.Printf("This can be generated from https://cloud.digitalocean.com/settings/applications \n\n")
+	fmt.Printf("Token: ")
+	fmt.Scan(&token)
+	fmt.Printf("Token entered: %s\n", token)
+
+	config := Configuration{token}
+	configB, _ := json.MarshalIndent(config, " ", "  ")
+
+	ioutil.WriteFile(path, configB, 0644)
+
+}
+
 // SetupClient for dom.
 func SetupClient(filepath string) *domclient {
 	file, err := ioutil.ReadFile(filepath)
 	if err != nil {
-		fmt.Println("Configuration file not found")
+		fmt.Println("Error: dom is not configured !! \nPlease run \"dom authorize\"")
 		return nil
 	}
 	config := Configuration{}
@@ -72,11 +89,11 @@ func (d *domclient) DropletList(filter string) ([]godo.Droplet, error) {
 	return list, nil
 }
 
-func (d *domclient) ImageList(fliter string, user bool) ([]godo.Image, error) {
+func (d *domclient) ImageList(fliter string, global bool) ([]godo.Image, error) {
 	list := []godo.Image{}
 	var images []godo.Image
 	var err error
-	if user == true {
+	if global == false {
 		fmt.Println("User ImageLists ")
 		images, _, err = d.client.Images.ListUser(nil)
 	} else {
