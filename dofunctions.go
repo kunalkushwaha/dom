@@ -1,13 +1,15 @@
 package main
 
 import (
-	"code.google.com/p/goauth2/oauth"
 	"encoding/json"
 	"fmt"
-	"github.com/digitalocean/godo"
 	"io/ioutil"
+
+	"code.google.com/p/goauth2/oauth"
+	"github.com/digitalocean/godo"
 )
 
+// Configuration dom configutation struct
 type Configuration struct {
 	Token string `json:"token"`
 }
@@ -17,6 +19,7 @@ type domclient struct {
 	client *godo.Client
 }
 
+// SetupClient for dom.
 func SetupClient(filepath string) *domclient {
 	file, err := ioutil.ReadFile(filepath)
 	if err != nil {
@@ -94,9 +97,9 @@ func (d *domclient) ImageList(fliter string, user bool) ([]godo.Image, error) {
 
 }
 
-func (d *domclient) RebuildByImageID(imageId int) error {
+func (d *domclient) RebuildByImageID(imageID int) error {
 
-	action, _, err := d.client.DropletActions.RebuildByImageID(imageId, imageId)
+	action, _, err := d.client.DropletActions.RebuildByImageID(imageID, imageID)
 	if err != nil {
 		fmt.Printf("DropletActions.Restore returned error: %v\n", err)
 		return err
@@ -105,7 +108,7 @@ func (d *domclient) RebuildByImageID(imageId int) error {
 	return nil
 }
 
-func (d *domclient) CreateDropletFromImage(imageID int) error {
+func (d *domclient) CreateDropletFromImage(imageID int) (*godo.Droplet, error) {
 	createRequest := &godo.DropletCreateRequest{
 		Name:   "testdr1",
 		Region: "nyc3",
@@ -118,10 +121,13 @@ func (d *domclient) CreateDropletFromImage(imageID int) error {
 	root, _, err := d.client.Droplets.Create(createRequest)
 	if err != nil {
 		fmt.Printf("Droplets.Create returned error: %v", err)
-		return err
+		return nil, err
 	}
-	if id := root.Droplet.ID; id != imageID {
-		fmt.Printf("expected id '%d', received '%d'\n", imageID, id)
-	}
-	return nil
+
+	return root, nil
+}
+
+func (d *domclient) DestroyDroplet(dropletID int) error {
+	_, err := d.client.Droplets.Delete(dropletID)
+	return err
 }

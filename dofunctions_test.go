@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 import "github.com/mitchellh/go-homedir"
 
 func TestDropletList(t *testing.T) {
@@ -10,6 +13,7 @@ func TestDropletList(t *testing.T) {
 		t.Errorf("Cannot setup the client")
 		return
 	}
+
 	_, err := d.DropletList(" ")
 	if err != nil {
 		t.Errorf("Unable to fetch DropletList\n")
@@ -41,7 +45,6 @@ func TestImageGlobalList(t *testing.T) {
 	}
 }
 
-
 func TestRestoreImage(t *testing.T) {
 	path, _ := homedir.Expand("~/.dom.json")
 	d := SetupClient(path)
@@ -49,9 +52,17 @@ func TestRestoreImage(t *testing.T) {
 		t.Errorf("Cannot setup the client")
 		return
 	}
-	err := d.CreateDropletFromImage(11876597)
+	droplet, err := d.CreateDropletFromImage(11876597)
 	if err != nil {
 		t.Errorf("Unable to create Droplet from Image\n")
+	}
+
+	//Time required for creation of droplet
+	time.Sleep(60 * time.Second)
+
+	err = d.DestroyDroplet(droplet.ID)
+	if err != nil {
+		t.Errorf("Unable to delete the Droplet.")
 	}
 
 }
