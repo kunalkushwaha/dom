@@ -190,7 +190,12 @@ func listDroplets(c *cli.Context) {
 	fmt.Println("NOT IMPLEMENTED !")
 }
 func listRegions(c *cli.Context) {
-	fmt.Println("NOT IMPLEMENTED !")
+	d := getDomClient()
+	err := d.ListRegions()
+	if err != nil {
+		fmt.Println("Unable to fetch User Region List")
+	}
+	//fmt.Println("NOT IMPLEMENTED !")
 }
 func resizeDroplet(c *cli.Context) {
 	fmt.Println("NOT IMPLEMENTED !")

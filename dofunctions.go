@@ -148,3 +148,17 @@ func (d *domclient) DestroyDroplet(dropletID int) error {
 	_, err := d.client.Droplets.Delete(dropletID)
 	return err
 }
+
+func (d *domclient) ListRegions() error {
+	regions, _, err := d.client.Regions.List(nil)
+	if err != nil {
+		fmt.Printf("Cannot retrive regions: %v\n", err)
+		return err
+	}
+
+	fmt.Printf("%5s %20s %20s\n", "SLUG", "Name", "Available")
+	for _, region := range regions {
+		fmt.Printf("%5s %20s %20v\n", region.Slug, region.Name, region.Available)
+	}
+	return nil
+}
