@@ -99,7 +99,7 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "image",
-					Usage: "create droplet from this image",
+					Usage: "[Mandatory] create droplet from this image",
 				},
 			},
 			Action: func(c *cli.Context) {
@@ -109,6 +109,12 @@ func main() {
 		{
 			Name:  "destory",
 			Usage: "destroy a droplet",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "id",
+					Usage: "[Mandatory] droplet-id to delete",
+				},
+			},
 			Action: func(c *cli.Context) {
 				destroyDroplet(c)
 			},
@@ -151,6 +157,12 @@ func main() {
 		{
 			Name:  "info",
 			Usage: "details of droplet",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "id",
+					Usage: "[Mandatory] droplet-id for info",
+				},
+			},
 			Action: func(c *cli.Context) {
 				infoDroplet(c)
 			},
@@ -180,23 +192,57 @@ func listImages(c *cli.Context) {
 	}
 
 }
+
 func createDroplet(c *cli.Context) {
-	fmt.Println("NOT IMPLEMENTED !")
+	image := c.String("image")
+
+	if image == "" {
+		fmt.Printf("You need to specify an image\n\n")
+		cli.ShowCommandHelp(c, "create")
+		return
+	}
+
+	d := getDomClient()
+	info, err := d.CreateDropletFromImage(image)
+	if err != nil {
+		fmt.Println("Error while creating droplet.")
+	} else {
+		fmt.Printf("Droplet will be ready within 60 Seconds Droplet ID: %d\n", info.ID)
+	}
 }
+
 func destroyDroplet(c *cli.Context) {
-	fmt.Println("NOT IMPLEMENTED !")
+	droplet := c.String("id")
+	if droplet == "" {
+		fmt.Printf("You need to specify an droplet-id\n\n")
+		cli.ShowCommandHelp(c, "destory")
+		return
+	}
+
+	d := getDomClient()
+
+	err := d.DestroyDroplet(droplet)
+	if err != nil {
+		fmt.Printf("Unable to delete the Droplet : %v\n", err)
+	}
 }
+
 func listDroplets(c *cli.Context) {
-	fmt.Println("NOT IMPLEMENTED !")
+	d := getDomClient()
+	_, err := d.DropletList("")
+	if err != nil {
+		fmt.Println("Error while retriving the Droplet List")
+	}
 }
+
 func listRegions(c *cli.Context) {
 	d := getDomClient()
 	err := d.ListRegions()
 	if err != nil {
 		fmt.Println("Unable to fetch User Region List")
 	}
-	//fmt.Println("NOT IMPLEMENTED !")
 }
+
 func resizeDroplet(c *cli.Context) {
 	fmt.Println("NOT IMPLEMENTED !")
 }
@@ -207,5 +253,17 @@ func restartDroplet(c *cli.Context) {
 	fmt.Println("NOT IMPLEMENTED !")
 }
 func infoDroplet(c *cli.Context) {
-	fmt.Println("NOT IMPLEMENTED !")
+	droplet := c.String("id")
+	if droplet == "" {
+		fmt.Printf("You need to specify an droplet-id\n\n")
+		cli.ShowCommandHelp(c, "info")
+		return
+	}
+
+	d := getDomClient()
+
+	err := d.DropletInfo(droplet)
+	if err != nil {
+		fmt.Printf("Unable to fetch info \n")
+	}
 }

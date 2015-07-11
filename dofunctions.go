@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strconv"
 
 	"code.google.com/p/goauth2/oauth"
 	"github.com/digitalocean/godo"
@@ -61,31 +62,16 @@ func (d *domclient) DropletList(filter string) ([]godo.Droplet, error) {
 
 	// create options. initially, these will be blank
 	opt := &godo.ListOptions{}
-	for {
-		droplets, resp, err := d.client.Droplets.List(opt)
-		if err != nil {
-			return nil, err
-		}
-
-		// append the current page's droplets to our list
-		for _, d := range droplets {
-			list = append(list, d)
-		}
-
-		// if we are at the last page, break out the for loop
-		if resp.Links == nil || resp.Links.IsLastPage() {
-			break
-		}
-
-		page, err := resp.Links.CurrentPage()
-		if err != nil {
-			return nil, err
-		}
-
-		// set the page we want for the next request
-		opt.Page = page + 1
+	droplets, _, err := d.client.Droplets.List(opt)
+	if err != nil {
+		return nil, err
 	}
-	fmt.Println(list)
+
+	//Print the List
+	fmt.Printf("%5s %16s %12s %23s %30s\n", "Droplet ID", "NAME", "Region", "IP", "Creation time")
+	for _, d := range droplets {
+		fmt.Printf("%5d %20s %10s %30s %30s\n", d.ID, d.Name, d.Region.Slug, d.Networks.V4[0].IPAddress, d.Created)
+	}
 	return list, nil
 }
 
@@ -125,13 +111,16 @@ func (d *domclient) RebuildByImageID(imageID int) error {
 	return nil
 }
 
-func (d *domclient) CreateDropletFromImage(imageID int) (*godo.Droplet, error) {
+func (d *domclient) CreateDropletFromImage(imageID string) (*godo.Droplet, error) {
+
+	imageid, _ := strconv.Atoi(imageID)
+
 	createRequest := &godo.DropletCreateRequest{
 		Name:   "testdr1",
 		Region: "nyc3",
 		Size:   "512MB",
 		Image: godo.DropletCreateImage{
-			ID: imageID,
+			ID: imageid,
 		},
 	}
 
@@ -144,8 +133,10 @@ func (d *domclient) CreateDropletFromImage(imageID int) (*godo.Droplet, error) {
 	return root, nil
 }
 
-func (d *domclient) DestroyDroplet(dropletID int) error {
-	_, err := d.client.Droplets.Delete(dropletID)
+func (d *domclient) DestroyDroplet(dropletID string) error {
+	dropletid, _ := strconv.Atoi(dropletID)
+
+	_, err := d.client.Droplets.Delete(dropletid)
 	return err
 }
 
@@ -156,9 +147,28 @@ func (d *domclient) ListRegions() error {
 		return err
 	}
 
-	fmt.Printf("%5s %20s %20s\n", "SLUG", "Name", "Available")
+	fmt.Printf("%5s %20s %20s\n", "Slug", "Name", "Available")
 	for _, region := range regions {
 		fmt.Printf("%5s %20s %20v\n", region.Slug, region.Name, region.Available)
 	}
+	return nil
+}
+
+func (d *domclient) DropletInfo(dropletID string) error {
+	dropletid, _ := strconv.Atoi(dropletID)
+
+	info, _, err := d.client.Droplets.Get(dropletid)
+	if err != nil {
+		fmt.Printf("Unable to fetch droplet info : %v\n", err)
+		return err
+	}
+	fmt.Printf("Droplet ID : %d\n", info.ID)
+	fmt.Printf("Name: %s\n", info.Name)
+	fmt.Printf("Region: %s ( %s )\n", info.Region.Name, info.Region.Slug)
+	fmt.Printf("Size : %d\n", info.Disk)
+	fmt.Printf("Memory : %d\n", info.Memory)
+	fmt.Printf("Vcpus : %d\n", info.Vcpus)
+	fmt.Printf("IP Address: %s\n", info.Networks.V4[0].IPAddress)
+
 	return nil
 }
