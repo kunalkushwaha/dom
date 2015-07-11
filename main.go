@@ -107,7 +107,7 @@ func main() {
 			},
 		},
 		{
-			Name:  "destory",
+			Name:  "destroy",
 			Usage: "destroy a droplet",
 			Flags: []cli.Flag{
 				cli.StringFlag{
@@ -143,13 +143,25 @@ func main() {
 		{
 			Name:  "halt",
 			Usage: "shutdown droplet",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "id",
+					Usage: "[Mandatory] droplet-id ",
+				},
+			},
 			Action: func(c *cli.Context) {
 				haltDroplet(c)
 			},
 		},
 		{
 			Name:  "restart",
-			Usage: "restart droplet",
+			Usage: "restarts droplet",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "id",
+					Usage: "[Mandatory] droplet-id ",
+				},
+			},
 			Action: func(c *cli.Context) {
 				restartDroplet(c)
 			},
@@ -160,7 +172,7 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "id",
-					Usage: "[Mandatory] droplet-id for info",
+					Usage: "[Mandatory] droplet-id ",
 				},
 			},
 			Action: func(c *cli.Context) {
@@ -215,7 +227,7 @@ func destroyDroplet(c *cli.Context) {
 	droplet := c.String("id")
 	if droplet == "" {
 		fmt.Printf("You need to specify an droplet-id\n\n")
-		cli.ShowCommandHelp(c, "destory")
+		cli.ShowCommandHelp(c, "destroy")
 		return
 	}
 
@@ -247,10 +259,35 @@ func resizeDroplet(c *cli.Context) {
 	fmt.Println("NOT IMPLEMENTED !")
 }
 func haltDroplet(c *cli.Context) {
-	fmt.Println("NOT IMPLEMENTED !")
+	droplet := c.String("id")
+	if droplet == "" {
+		fmt.Printf("You need to specify an droplet-id\n\n")
+		cli.ShowCommandHelp(c, "halt")
+		return
+	}
+
+	d := getDomClient()
+
+	err := d.DropletShutdown(droplet)
+	if err != nil {
+		fmt.Printf("Unable to Shutdown the Droplet : %v\n", err)
+	}
 }
 func restartDroplet(c *cli.Context) {
-	fmt.Println("NOT IMPLEMENTED !")
+	//TODO: Force reboot.
+	droplet := c.String("id")
+	if droplet == "" {
+		fmt.Printf("You need to specify an droplet-id\n\n")
+		cli.ShowCommandHelp(c, "restart")
+		return
+	}
+
+	d := getDomClient()
+
+	err := d.DropletRestart(droplet)
+	if err != nil {
+		fmt.Printf("Unable to Reboot the Droplet : %v\n", err)
+	}
 }
 func infoDroplet(c *cli.Context) {
 	droplet := c.String("id")

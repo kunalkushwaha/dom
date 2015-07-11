@@ -140,6 +140,20 @@ func (d *domclient) DestroyDroplet(dropletID string) error {
 	return err
 }
 
+func (d *domclient) DropletShutdown(dropletID string) error {
+	dropletid, _ := strconv.Atoi(dropletID)
+
+	_, _, err := d.client.DropletActions.Shutdown(dropletid)
+	return err
+}
+
+func (d *domclient) DropletRestart(dropletID string) error {
+	dropletid, _ := strconv.Atoi(dropletID)
+
+	_, _, err := d.client.DropletActions.Reboot(dropletid)
+	return err
+}
+
 func (d *domclient) ListRegions() error {
 	regions, _, err := d.client.Regions.List(nil)
 	if err != nil {
@@ -162,13 +176,14 @@ func (d *domclient) DropletInfo(dropletID string) error {
 		fmt.Printf("Unable to fetch droplet info : %v\n", err)
 		return err
 	}
-	fmt.Printf("Droplet ID : %d\n", info.ID)
-	fmt.Printf("Name: %s\n", info.Name)
-	fmt.Printf("Region: %s ( %s )\n", info.Region.Name, info.Region.Slug)
-	fmt.Printf("Size : %d\n", info.Disk)
-	fmt.Printf("Memory : %d\n", info.Memory)
-	fmt.Printf("Vcpus : %d\n", info.Vcpus)
-	fmt.Printf("IP Address: %s\n", info.Networks.V4[0].IPAddress)
+
+	fmt.Printf("\n%12s : %s\n", "Name", info.Name)
+	fmt.Printf("%12s : %s ( %s )\n", "Region", info.Region.Name, info.Region.Slug)
+	fmt.Printf("%12s : %d GB\n", "Size", info.Disk)
+	fmt.Printf("%12s : %d MB\n", "Memory", info.Memory)
+	fmt.Printf("%12s : %d\n", "Vcpus", info.Vcpus)
+	fmt.Printf("%12s : %s\n", "IP Address", info.Networks.V4[0].IPAddress)
+	fmt.Printf("%12s : %s\n", "Status", info.Status)
 
 	return nil
 }
