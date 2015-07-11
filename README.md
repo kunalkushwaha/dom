@@ -1,4 +1,7 @@
-# dom ( digital-ocean-manager )
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/kunalkushwaha/dom/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
+# dom ( digital-ocean-manager ) 
+
 A command line tool for interacting with your DigitalOcean droplets.
 
 This tool in inspired by [TugBoat](https://github.com/pearkes/tugboat) tool, which is implemented in ruby.
