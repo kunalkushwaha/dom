@@ -1,6 +1,6 @@
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/kunalkushwaha/dom/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
-# dom ( digital-ocean-manager ) 
+# dom ( digital-ocean-manager )
 
 A command line tool for interacting with your DigitalOcean droplets.
 
@@ -12,7 +12,12 @@ NOTE
 This is still in development and all features are yet not available.
 Current Status
 ---------------
-NOT READY. Under active development.
+0.1.0 release.
+
+TODO:
+- resize implementation.
+- snapshot & delete (Single command)
+Suggestions?     
 
 
 Installation.
@@ -46,7 +51,6 @@ COMMANDS:
    destory	destroy a droplet
    droplets	list  droplets
    regions	list a regions
-   resize	resize a droplet
    halt		shutdown droplet
    restart	restart droplet
    info		details of droplet
