@@ -12,17 +12,24 @@ import (
 
 // Configuration dom configutation struct
 type Configuration struct {
-	Token string `json:"token"`
+	Token   string `json:"token"`
+	Region  string `json:"region"`
+	Size    string `json:"size"`
+	Imageid string `json:"image"`
 }
 
 type domclient struct {
 	tr     *oauth.Transport
 	client *godo.Client
+	config Configuration
 }
 
 // ConfigureDOM configures the client with token
 func ConfigureDOM(path string) {
 	var token string
+	var region string
+	var imageid string
+	var size string
 
 	fmt.Println("\nYou need to obtain Personal Access Token from DigitalOcean")
 	fmt.Printf("This can be generated from https://cloud.digitalocean.com/settings/applications \n\n")
@@ -30,9 +37,27 @@ func ConfigureDOM(path string) {
 	fmt.Scan(&token)
 	fmt.Printf("Token entered: %s\n", token)
 
-	config := Configuration{token}
-	configB, _ := json.MarshalIndent(config, " ", "  ")
+	fmt.Println("Please enter 0 for default setting")
+	fmt.Printf("Enter your default region ID (0 for default to New York(nyc3)): ")
+	fmt.Scan(&region)
+	fmt.Printf("Enter your default image ID (0 for default to 11836690 (Ubuntu 14.04 x64)): ")
+	fmt.Scan(&imageid)
+	fmt.Printf("Enter your default size ID (0 for default to 512MB): ")
+	fmt.Scan(&size)
 
+	if region == "0" {
+		region = "nyc3"
+	}
+	if imageid == "0" {
+		imageid = "11836690"
+	}
+	if size == "0" {
+		size = "512MB"
+	}
+
+	config := Configuration{token, region, size, imageid}
+	configB, _ := json.MarshalIndent(config, " ", "  ")
+	fmt.Printf("%s\n", configB)
 	ioutil.WriteFile(path, configB, 0644)
 
 }
@@ -53,6 +78,7 @@ func SetupClient(filepath string) *domclient {
 	d := &domclient{}
 	d.tr = &oauth.Transport{Token: &oauth.Token{AccessToken: config.Token}}
 	d.client = godo.NewClient(d.tr.Client())
+	d.config = config
 	return d
 }
 
@@ -111,14 +137,14 @@ func (d *domclient) RebuildByImageID(imageID int) error {
 	return nil
 }
 
-func (d *domclient) CreateDropletFromImage(imageID string) (*godo.Droplet, error) {
+func (d *domclient) CreateDropletFromImage(name string, region string, size string, imageID string) (*godo.Droplet, error) {
 
 	imageid, _ := strconv.Atoi(imageID)
-
+	fmt.Printf("Param : %s %s %s %d\n", name, region, size, imageid)
 	createRequest := &godo.DropletCreateRequest{
-		Name:   "testdr1",
-		Region: "nyc3",
-		Size:   "512MB",
+		Name:   name,
+		Region: region,
+		Size:   size,
 		Image: godo.DropletCreateImage{
 			ID: imageid,
 		},
@@ -185,5 +211,19 @@ func (d *domclient) DropletInfo(dropletID string) error {
 	fmt.Printf("%12s : %s\n", "IP Address", info.Networks.V4[0].IPAddress)
 	fmt.Printf("%12s : %s\n", "Status", info.Status)
 
+	return nil
+}
+
+func (d *domclient) ListSizes() error {
+	sizeInfo, _, err := d.client.Sizes.List(nil)
+	if err != nil {
+		fmt.Println("Error in retriving Size info.")
+		return err
+	}
+	fmt.Printf("%5s %5s %10s %10s %8s %20s\n", "Slug", "Availbale", "Disk", "Memory", "Vcpus", "Price (Monthy)")
+	for _, s := range sizeInfo {
+		fmt.Printf("%5s %5v %12d GB %8d MB %5d %14.2f USD\n", s.Slug, s.Available, s.Disk, s.Memory, s.Vcpus, s.PriceMonthly)
+
+	}
 	return nil
 }

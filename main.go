@@ -98,8 +98,20 @@ func main() {
 			Usage: "creates a droplet",
 			Flags: []cli.Flag{
 				cli.StringFlag{
+					Name:  "name",
+					Usage: "[Mandatory] Droplet name",
+				},
+				cli.StringFlag{
+					Name:  "size",
+					Usage: "[Optional] Size of Droplet",
+				},
+				cli.StringFlag{
+					Name:  "region",
+					Usage: "[Optional] Droplet will be created at this region",
+				},
+				cli.StringFlag{
 					Name:  "image",
-					Usage: "[Mandatory] create droplet from this image",
+					Usage: "[Optional] create droplet from this image",
 				},
 			},
 			Action: func(c *cli.Context) {
@@ -134,12 +146,20 @@ func main() {
 			},
 		},
 		{
-			Name:  "resize",
-			Usage: "resize a droplet",
+			Name:  "sizes",
+			Usage: "list a size information related to droplets",
 			Action: func(c *cli.Context) {
-				resizeDroplet(c)
+				listSizes(c)
 			},
 		},
+		/*		{
+					Name:  "resize",
+					Usage: "resize a droplet",
+					Action: func(c *cli.Context) {
+						resizeDroplet(c)
+					},
+				},
+		*/
 		{
 			Name:  "halt",
 			Usage: "shutdown droplet",
@@ -207,20 +227,34 @@ func listImages(c *cli.Context) {
 
 func createDroplet(c *cli.Context) {
 	image := c.String("image")
+	name := c.String("name")
+	size := c.String("size")
+	region := c.String("region")
 
-	if image == "" {
-		fmt.Printf("You need to specify an image\n\n")
+	if name == "" {
+		fmt.Println("Enter name of droplet")
 		cli.ShowCommandHelp(c, "create")
-		return
 	}
 
 	d := getDomClient()
-	info, err := d.CreateDropletFromImage(image)
+
+	if image == "" {
+		image = d.config.Imageid
+	}
+	if size == "" {
+		size = d.config.Size
+	}
+	if region == "" {
+		region = d.config.Region
+	}
+
+	info, err := d.CreateDropletFromImage(name, region, size, image)
 	if err != nil {
 		fmt.Println("Error while creating droplet.")
 	} else {
 		fmt.Printf("Droplet will be ready within 60 Seconds Droplet ID: %d\n", info.ID)
 	}
+
 }
 
 func destroyDroplet(c *cli.Context) {
@@ -252,6 +286,14 @@ func listRegions(c *cli.Context) {
 	err := d.ListRegions()
 	if err != nil {
 		fmt.Println("Unable to fetch User Region List")
+	}
+}
+
+func listSizes(c *cli.Context) {
+	d := getDomClient()
+	err := d.ListSizes()
+	if err != nil {
+		fmt.Println("Unable to fetch User Size List")
 	}
 }
 
