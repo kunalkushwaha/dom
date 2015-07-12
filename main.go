@@ -8,62 +8,6 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
-/*
-Retrieve a list of your droplets
-$ tugboat droplets
-
-Fuzzy name matching
-You can pass a unique fragment of a droplets name for interactions throughout tugboat.
-$ tugboat restart admin
-
-SSH into a droplet
-You can configure an SSH username and key path in tugboat authorize, or by changing your ~/.tugboat.
-This lets you ssh into a droplet by providing it's name, or a partial match.
-$ tugboat ssh admin
-
-Create a droplet
-$ tugboat create pearkes-www-002 -s 64 -i 2676 -r 2 -k 11251
-
-Info about a droplet
-$ tugboat info admin
-
-Destroy a droplet
-$ tugboat destroy pearkes-www-002
-
-Restart a droplet
-$ tugboat restart admin
-
-Shutdown a droplet
-$ tugboat halt admin
-
-Snapshot a droplet
-$ tugboat snapshot test-admin-snaphot admin
-
-Resize a droplet
-$ tugboat resize admin -s 66
-
-List Available Images
-You can list images that you have created.
-$ tugboat images
-
-Optionally, list images provided by DigitalOcean as well.
-$ tugboat images --global
-
-List Available Sizes
-$ tugboat sizes
-
-List Available Regions
-$ tugboat regions
-
-List SSH Keys
-$ tugboat keys
-
-Wait for Droplet State
-Sometimes you want to wait for a droplet to enter some state, for example "off".
-$ tugboat wait admin --state off
-
-
-*/
 const domConfigPath string = "~/.dom.json"
 
 func main() {
@@ -71,6 +15,7 @@ func main() {
 	dom := cli.NewApp()
 	dom.Name = "digital-ocean-manager"
 	dom.Usage = "Cli based digital-ocean client"
+	dom.Version = "0.1.0 Beta"
 	dom.Commands = []cli.Command{
 		{
 			Name:  "authorize",

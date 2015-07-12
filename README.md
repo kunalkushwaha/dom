@@ -17,7 +17,8 @@ Current Status
 TODO:
 - resize implementation.
 - snapshot & delete (Single command)
-Suggestions?     
+- Fuzzy name matching
+Suggestions?
 
 
 Installation.
